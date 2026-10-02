@@ -45,6 +45,7 @@ import { llmRoutes } from "./routes/llms.js";
 import { authRoutes } from "./routes/auth.js";
 import { assetRoutes } from "./routes/assets.js";
 import { accessRoutes } from "./routes/access.js";
+import { maintenanceRoutes } from "./routes/maintenance.js";
 import { pluginRoutes } from "./routes/plugins.js";
 import { adapterRoutes } from "./routes/adapters.js";
 import { pluginUiStaticRoutes } from "./routes/plugin-ui-static.js";
@@ -323,6 +324,8 @@ export async function createApp(
     ),
   );
   api.use(adapterRoutes());
+  // gateway-safe-restart.sh maintenance contract (ALL-727 step 5) — loopback-only
+  api.use(maintenanceRoutes({ logger: { info: undefined, warn: undefined } }));
   api.use(
     accessRoutes(db, {
       deploymentMode: opts.deploymentMode,

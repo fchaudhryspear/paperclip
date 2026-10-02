@@ -896,6 +896,59 @@ registry.registerPath({
 });
 
 registry.registerPath({
+  method: "patch",
+  path: "/api/maintenance/gateway-restart",
+  tags: ["maintenance"],
+  summary: "Gateway-restart maintenance pause/resume (gateway-safe-restart.sh contract, ALL-1015)",
+  security: [],
+  request: {
+    body: jsonBody(
+      z.object({
+        status: z.enum(["paused", "active"]),
+        pauseReason: z.string().max(200).optional(),
+      }),
+    ),
+  },
+  responses: {
+    200: r.ok(
+      z.object({
+        status: z.enum(["paused", "active"]),
+        updatedAt: z.string(),
+        pauseReason: z.string().optional(),
+        pausedAt: z.string().optional(),
+        activeRunIds: z.array(z.string()).optional(),
+      }),
+    ),
+    400: r.badRequest,
+    401: r.unauthorized,
+    403: { description: "Loopback-only surface" },
+    500: { description: "Failed to write maintenance flag" },
+  },
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/api/maintenance/gateway-restart",
+  tags: ["maintenance"],
+  summary: "Gateway-restart maintenance state",
+  security: [],
+  responses: {
+    200: r.ok(
+      z.object({
+        status: z.enum(["active", "paused"]),
+        updatedAt: z.string(),
+        pauseReason: z.string().optional(),
+        pausedAt: z.string().optional(),
+        host: z.string(),
+        tag: z.string(),
+      }),
+    ),
+    401: r.unauthorized,
+    403: { description: "Loopback-only surface" },
+  },
+});
+
+registry.registerPath({
   method: "get",
   path: "/api/openapi.json",
   tags: ["health"],
